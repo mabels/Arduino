@@ -55,9 +55,7 @@ extern "C" {
 #define os_strncmp ets_strncmp
 #define os_strncpy ets_strncpy
 #define os_strstr ets_strstr
-#ifdef USE_US_TIMER
 #define os_timer_arm_us(a, b, c) ets_timer_arm_new(a, b, c, 0)
-#endif
 #define os_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
 #define os_timer_disarm ets_timer_disarm
 #define os_timer_done ets_timer_done

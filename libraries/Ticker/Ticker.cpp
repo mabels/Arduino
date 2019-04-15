@@ -42,7 +42,7 @@ Ticker::~Ticker()
 	detach();
 }
 
-void Ticker::_attach_ms(uint32_t milliseconds, bool repeat, callback_with_arg_t callback, uint32_t arg)
+void Ticker::_attach_mus(Mus mus, uint32_t usec_or_msec, bool repeat, callback_with_arg_t callback, uint32_t arg)
 {
 	if (_timer)
 	{
@@ -54,7 +54,13 @@ void Ticker::_attach_ms(uint32_t milliseconds, bool repeat, callback_with_arg_t 
 	}
 
 	os_timer_setfn(_timer, reinterpret_cast<ETSTimerFunc*>(callback), reinterpret_cast<void*>(arg));
-	os_timer_arm(_timer, milliseconds, (repeat)?REPEAT:ONCE);
+	if (mus == MilliSeconds) {
+		os_timer_arm(_timer, usec_or_msec, (repeat)?REPEAT:ONCE);
+	} else {
+#ifdef os_timer_arm_us
+		os_timer_arm_us(_timer, usec_or_msec, (repeat)?REPEAT:ONCE);
+#endif
+	}
 }
 
 void Ticker::detach()
