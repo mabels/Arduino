@@ -135,6 +135,7 @@ function install_libraries()
     pushd $HOME/Arduino/libraries
 
     # install ArduinoJson library
+    rm -rf ArduinoJson
     { test -r ArduinoJson-v4.6.1.zip || wget https://github.com/bblanchon/ArduinoJson/releases/download/v4.6.1/ArduinoJson-v4.6.1.zip; } && unzip ArduinoJson-v4.6.1.zip
 
     popd
@@ -147,7 +148,8 @@ function install_ide()
     local debug=$3
     test -r arduino.tar.xz || wget -O arduino.tar.xz https://www.arduino.cc/download.php?f=/arduino-nightly-linux64.tar.xz
     tar xf arduino.tar.xz
-    mv arduino-nightly $ide_path
+    rm -rf $ide_path
+    rsync -vaxH --remove-source-files arduino-nightly/ $ide_path
     cd $ide_path/hardware
     mkdir esp8266com
     cd esp8266com

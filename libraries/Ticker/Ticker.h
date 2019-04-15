@@ -62,11 +62,13 @@ public:
 	{
 		attach_us(useconds, std::bind(schedule_function, callback));
 	}
+
 	void attach_us(uint32_t useconds, callback_function_t callback)
 	{
 		_callback_function = callback;
 		attach_us(useconds, _static_callback, (void*)this);
 	}
+
 	template<typename TArg>
 	void attach_us(uint32_t useconds, void (*callback)(TArg), TArg arg)
 	{
@@ -79,11 +81,13 @@ public:
 	{
 		once_us(useconds, std::bind(schedule_function, callback));
 	}
+
 	void once_us(uint32_t useconds, callback_function_t callback)
 	{
 		_callback_function = callback;
 		once_us(useconds, _static_callback, (void*)this);
 	}
+
 	template<typename TArg>
 	void once_us(uint32_t useconds, void (*callback)(TArg), TArg arg)
 	{
@@ -165,14 +169,17 @@ public:
 
 protected:	
 	void _attach_mus(Mus mus, uint32_t usec_or_msec, bool repeat, callback_with_arg_t callback, uint32_t arg);
+
 	void _attach_ms(uint32_t milliseconds, bool repeat, callback_with_arg_t callback, uint32_t arg) 
 	{
 		_attach_mus(Mus::MilliSeconds, milliseconds, repeat, callback, arg);	
 	}
+
 	void _attach_us(uint32_t useconds, bool repeat, callback_with_arg_t callback, uint32_t arg) 
 	{
 		_attach_mus(Mus::MicroSeconds, useconds, repeat, callback, arg);	
 	}
+
 	static void _static_callback (void* arg);
 
 protected:
