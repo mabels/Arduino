@@ -27,6 +27,7 @@
 #include "ets_sys.h"
 #include "osapi.h"
 
+#include "Arduino.h"
 static const int ONCE   = 0;
 static const int REPEAT = 1;
 
@@ -55,11 +56,15 @@ void Ticker::_attach_mus(Mus mus, uint32_t usec_or_msec, bool repeat, callback_w
 
 	os_timer_setfn(_timer, reinterpret_cast<ETSTimerFunc*>(callback), reinterpret_cast<void*>(arg));
 	if (mus == MilliSeconds) {
+Serial.print("mms:"); 
+Serial.println(usec_or_msec); 
 		os_timer_arm(_timer, usec_or_msec, (repeat)?REPEAT:ONCE);
 	} else {
-#ifdef os_timer_arm_us
+Serial.print("mus:"); 
+Serial.println(usec_or_msec); 
+//#ifdef os_timer_arm_us
 		os_timer_arm_us(_timer, usec_or_msec, (repeat)?REPEAT:ONCE);
-#endif
+//#endif
 	}
 }
 

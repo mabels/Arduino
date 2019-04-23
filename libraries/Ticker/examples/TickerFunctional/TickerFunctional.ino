@@ -2,10 +2,13 @@
 #include "Ticker.h"
 
 #define LED1  2
-#define LED2  4
-#define LED3  12
-#define LED4  14
-#define LED5  15
+#define LED2  2
+#define LED3  2
+#define LED4  2
+#define LED5  2
+
+#define TICKFREQ_MS 250
+#define TICKFREQ_US (TICKFREQ_MS * 1000)
 
 
 class ExampleClass {
@@ -41,57 +44,93 @@ Ticker scheduledTicker;
 Ticker parameterTicker;
 Ticker lambdaTicker;
 
-ExampleClass example(LED1, 100);
+// ExampleClass example(LED1, TICKFREQ_MS);
 
+int lambdaTickerCount = 1;
+long lambdaTickerTotal = 0;
+long lambdaTickerLast = 0;
 void attach_ms() {
-  staticTicker.attach_ms(100, staticBlink);
+/*
+  staticTicker.attach_ms(TICKFREQ_MS, staticBlink);
 
-  scheduledTicker.attach_ms_scheduled(100, scheduledBlink);
+  scheduledTicker.attach_ms_scheduled(TICKFREQ_MS, scheduledBlink);
 
-  parameterTicker.attach_ms(100, std::bind(parameterBlink, LED4));
+  parameterTicker.attach_ms(TICKFREQ_MS, std::bind(parameterBlink, LED4));
+*/
 
-  lambdaTicker.attach_ms(100, []() {
+  lambdaTickerLast = micros();
+  lambdaTicker.attach_ms(TICKFREQ_MS, []() {
+    ++lambdaTickerCount;
+    auto now = micros();
+    lambdaTickerTotal += now - lambdaTickerLast; 
     digitalWrite(LED5, !digitalRead(LED5));
+    lambdaTickerLast = now;
   });
 }
 
+
+int us2ms;
 void attach_us() {
-  staticTicker.attach_us(900, staticBlink);
+/*
+  staticTicker.attach_us(TICKFREQ_US/500, staticBlink);
 
-  scheduledTicker.attach_us_scheduled(900, scheduledBlink);
+  scheduledTicker.attach_us_scheduled(TICKFREQ_US/500, scheduledBlink);
 
-  parameterTicker.attach_us(900, std::bind(parameterBlink, LED4));
-
-  lambdaTicker.attach_us(900, []() {
-    digitalWrite(LED5, !digitalRead(LED5));
+  parameterTicker.attach_us(TICKFREQ_US/500, std::bind(parameterBlink, LED4));
+*/
+  lambdaTickerLast = micros();
+  us2ms = 0;
+  lambdaTicker.attach_us(TICKFREQ_US/500, []() {
+    us2ms += TICKFREQ_US/500;
+    if (us2ms >= TICKFREQ_US) {
+	    us2ms = 0;
+	    ++lambdaTickerCount;
+	    auto now = micros();
+	    lambdaTickerTotal += now - lambdaTickerLast; 
+	    digitalWrite(LED5, !digitalRead(LED5));
+	    lambdaTickerLast = now;
+    }
   });
 }
 
 void detach() {
+/*
   staticTicker.detach();
 
   scheduledTicker.detach();
 
   parameterTicker.detach();
-
+*/
   lambdaTicker.detach();
 }
 
 
 void setup() {
+  Serial.begin(115200);
+  Serial.println("Start");
+/*
   pinMode(LED2, OUTPUT);
   pinMode(LED3, OUTPUT);
   pinMode(LED4, OUTPUT);
+*/
   pinMode(LED5, OUTPUT);
 }
 
-static int ms2us = 0;
+int ms2us = 0;
 void loop() {
 	if (++ms2us % 2 == 0) {
 		attach_ms();
 	} else {
 		attach_us();
 	}
-	delay(2);
+	delay(2000);
 	detach();
+        auto avg = lambdaTickerTotal/lambdaTickerCount;
+	// if (!(245000 <= avg && avg <= 255000)) {
+		Serial.print(lambdaTickerCount);
+		Serial.print(":");
+		Serial.println(avg);
+	// }
+	lambdaTickerCount = 1;
+	lambdaTickerTotal = 0;
 }
